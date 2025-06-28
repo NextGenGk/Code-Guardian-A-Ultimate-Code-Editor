@@ -11,7 +11,7 @@ import ProblemStatement from './ProblemStatement'
 import TestResults from './TestResults'
 import Header from './layout/Header'
 import AdminQuestionForm from './admin/AdminQuestionForm'
-import { Problem } from '@/types/Problem'
+import { Problem } from '@/types/problem'
 import { getCodeTemplate } from '@/utils/codeTemplates'
 import { executeCode } from '@/utils/codeExecution'
 import { toast } from '@/hooks/use-toast'
@@ -297,7 +297,7 @@ const CodeEditor: React.FC = () => {
   }
 
   return (
-    <div className="h-screen bg-gray-50 p-4">
+    <div className="h-screen bg-gray-50">
       <div className="h-full flex flex-col space-y-4">
         <Header
           timeLeft={timeLeft}
