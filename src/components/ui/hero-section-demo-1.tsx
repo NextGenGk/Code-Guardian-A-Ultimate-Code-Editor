@@ -22,13 +22,13 @@ export default function HeroSectionOne() {
   return (
     <div className="relative w-full flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
       <Navbar />
-      <div className="absolute inset-y-0 left-0 h-full w-px bg-neutral-200/80 dark:bg-neutral-800/80">
+      <div className="absolute inset-y-0 left-0 h-full w-px bg-transparent">
         <div className="absolute top-0 h-40 w-px bg-gradient-to-b from-transparent via-blue-500 to-transparent" />
       </div>
-      <div className="absolute inset-y-0 right-0 h-full w-px bg-neutral-200/80 dark:bg-neutral-800/80">
+      <div className="absolute inset-y-0 right-0 h-full w-px bg-transparent">
         <div className="absolute h-40 w-px bg-gradient-to-b from-transparent via-blue-500 to-transparent" />
       </div>
-      <div className="absolute inset-x-0 bottom-0 h-px w-full bg-neutral-200/80 dark:bg-neutral-800/80">
+      <div className="absolute inset-x-0 bottom-0 h-px w-full bg-transparent">
         <div className="absolute mx-auto h-px w-40 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
       </div>
       <div className="py-10 md:py-20">
@@ -86,7 +86,7 @@ export default function HeroSectionOne() {
           >
             {isSignedIn ? 'Go to Code Editor' : 'Get Started'}
           </button>
-          <button className="w-60 transform rounded-lg border border-gray-600 bg-transparent px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800">
+          <button className="w-60 transform rounded-lg border border-transparent bg-transparent px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800">
             <a href="https://devgaurav.social" target="_blank" rel="noopener noreferrer" className="block w-full h-full">
               Contact Support
             </a>
@@ -105,9 +105,9 @@ export default function HeroSectionOne() {
             duration: 0.3,
             delay: 1.2,
           }}
-          className="relative z-10 mt-20 mx-auto max-w-7xl rounded-3xl border border-gray-700 bg-gray-800 p-4 shadow-md"
+          className="relative z-10 mt-20 mx-auto max-w-7xl rounded-3xl border border-transparent bg-gray-800 p-4 shadow-md"
         >
-          <div className="w-full overflow-hidden rounded-xl border border-gray-600">
+          <div className="w-full overflow-hidden rounded-xl border border-transparent">
             <img
               src="https://assets.aceternity.com/pro/aceternity-landing.webp"
               alt="Landing page preview"
@@ -127,7 +127,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="flex w-full items-center justify-between border-t border-b border-gray-700 px-4 py-4 bg-black/20 backdrop-blur-sm">
+    <nav className="flex w-full items-center justify-between border-t border-b border-transparent px-4 py-4 bg-black/20 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <Logo size="md" />
         <h1 
@@ -161,7 +161,7 @@ const Navbar = () => {
             </button>
             <button 
               onClick={() => navigate('/sign-up')}
-              className="w-24 transform rounded-lg border border-gray-600 bg-transparent px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32"
+              className="w-24 transform rounded-lg border border-transparent bg-transparent px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32"
             >
               Sign Up
             </button>
