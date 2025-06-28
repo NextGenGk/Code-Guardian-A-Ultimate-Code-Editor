@@ -423,12 +423,12 @@ const CodeEditor: React.FC = () => {
             {showProblemPanel && (
               <>
                 <ResizablePanel defaultSize={40} minSize={30}>
-                  <div className={`h-full ${appTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg shadow-sm border transition-colors duration-200`}>
-                    <div className={`p-4 border-b ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-t-lg transition-colors duration-200`}>
+                  <div className="h-full bg-white border-gray-200 rounded-lg shadow-sm border">
+                    <div className="p-4 border-b bg-gray-50 border-gray-200 rounded-t-lg">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-2">
                           <BookOpen className="w-5 h-5 text-blue-600" />
-                          <h2 className={`text-lg font-semibold ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Problem Statement</h2>
+                          <h2 className="text-lg font-semibold text-gray-900">Problem Statement</h2>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Button
@@ -443,7 +443,7 @@ const CodeEditor: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => setShowProblemPanel(false)}
-                            className={appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}
+                            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                           >
                             <Minimize2 className="w-4 h-4" />
                           </Button>
