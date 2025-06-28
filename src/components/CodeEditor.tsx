@@ -379,10 +379,7 @@ const CodeEditor: React.FC = () => {
   if (isLoadingQuestions) {
     return (
       <div className={`h-screen ${appTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center transition-colors duration-200`}>
-        <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <div className={`text-lg ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Loading questions...</div>
-        </div>
+        <div className={`text-lg ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Loading questions...</div>
       </div>
     )
   }

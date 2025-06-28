@@ -12,29 +12,13 @@ import SignInPage from '@/components/auth/SignInPage'
 import SignUpPage from '@/components/auth/SignUpPage'
 
 function HomePage() {
-  const { isLoaded, isSignedIn } = useUser()
-
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    )
-  }
+  const { isSignedIn } = useUser()
 
   return <HomeHeader />
 }
 
 function CodeEditorPage() {
-  const { isLoaded, isSignedIn } = useUser()
-
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    )
-  }
+  const { isSignedIn } = useUser()
 
   if (!isSignedIn) {
     return <HomeHeader />
