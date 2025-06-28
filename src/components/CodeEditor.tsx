@@ -462,10 +462,10 @@ const CodeEditor: React.FC = () => {
                         </SelectTrigger>
                         <SelectContent>
                           {questions.map((problem) => (
-                            <SelectItem key={problem.id} value={problem.id}>
+                            <SelectItem key={problem.id} value={problem.id} className="py-3">
                               <div className="flex items-center justify-between w-full">
-                                <span>{problem.title}</span>
-                                <Badge variant={problem.difficulty === 'Easy' ? 'default' : problem.difficulty === 'Medium' ? 'secondary' : 'destructive'}>
+                                <span className="font-medium">{problem.title}</span>
+                                <Badge variant={problem.difficulty === 'Easy' ? 'default' : problem.difficulty === 'Medium' ? 'secondary' : 'destructive'} className="ml-2 px-3 py-1">
                                   {problem.difficulty}
                                 </Badge>
                               </div>
