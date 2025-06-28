@@ -17,11 +17,6 @@ out/
 .next-turbo/
 .next/cache/
 
-# Tailwind-generated files (if using JIT or standalone builds)
-tailwind.config.js
-tailwind.config.cjs
-tailwind.config.ts
-
 # Environment files
 .env
 .env.local
