@@ -14,9 +14,8 @@ export default function HeroSectionOne() {
     if (isSignedIn) {
       navigate('/editor');
     } else {
-      // If not signed in, show sign in modal or redirect to sign in
-      // For now, we'll just navigate to editor and let the component handle the redirect
-      navigate('/editor');
+      // If not signed in, navigate to sign in page
+      navigate('/sign-in');
     }
   };
 
@@ -85,10 +84,12 @@ export default function HeroSectionOne() {
             onClick={handleExploreClick}
             className="w-60 transform rounded-lg bg-white px-6 py-2 font-medium text-black transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-200"
           >
-            {isSignedIn ? 'Go to Code Editor' : 'Explore Now'}
+            {isSignedIn ? 'Go to Code Editor' : 'Get Started'}
           </button>
           <button className="w-60 transform rounded-lg border border-gray-600 bg-transparent px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800">
-            Contact Support
+            <a href="https://devgaurav.social" target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+              Contact Support
+            </a>
           </button>
         </motion.div>
         <motion.div
@@ -152,16 +153,18 @@ const Navbar = () => {
           </div>
         ) : (
           <div className="flex items-center space-x-2">
-            <SignInButton mode="modal">
-              <button className="w-24 transform rounded-lg bg-white px-6 py-2 font-medium text-black transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-200 md:w-32">
-                Sign In
-              </button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button className="w-24 transform rounded-lg border border-gray-600 bg-transparent px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32">
-                Sign Up
-              </button>
-            </SignUpButton>
+            <button 
+              onClick={() => navigate('/sign-in')}
+              className="w-24 transform rounded-lg bg-white px-6 py-2 font-medium text-black transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-200 md:w-32"
+            >
+              Sign In
+            </button>
+            <button 
+              onClick={() => navigate('/sign-up')}
+              className="w-24 transform rounded-lg border border-gray-600 bg-transparent px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32"
+            >
+              Sign Up
+            </button>
           </div>
         )}
       </div>

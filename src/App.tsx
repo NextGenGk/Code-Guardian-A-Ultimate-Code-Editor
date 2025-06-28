@@ -8,6 +8,8 @@ import { ReactQueryProvider } from '@/components/providers/react-query-provider'
 import { useUser } from '@clerk/clerk-react'
 import CodeEditor from '@/components/CodeEditor'
 import HomeHeader from '@/components/layout/HomeHeader'
+import SignInPage from '@/components/auth/SignInPage'
+import SignUpPage from '@/components/auth/SignUpPage'
 
 function HomePage() {
   const { isLoaded, isSignedIn } = useUser()
@@ -55,6 +57,8 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/editor" element={<CodeEditorPage />} />
+              <Route path="/sign-in" element={<SignInPage />} />
+              <Route path="/sign-up" element={<SignUpPage />} />
               <Route path="*" element={<HomePage />} />
             </Routes>
           </Router>
