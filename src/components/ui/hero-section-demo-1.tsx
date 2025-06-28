@@ -3,9 +3,22 @@
 import { motion } from "framer-motion";
 import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/clerk-react';
 import { Code } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import Logo from './Logo';
 
 export default function HeroSectionOne() {
   const { isSignedIn, user } = useUser();
+  const navigate = useNavigate();
+
+  const handleExploreClick = () => {
+    if (isSignedIn) {
+      navigate('/editor');
+    } else {
+      // If not signed in, show sign in modal or redirect to sign in
+      // For now, we'll just navigate to editor and let the component handle the redirect
+      navigate('/editor');
+    }
+  };
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
@@ -20,8 +33,8 @@ export default function HeroSectionOne() {
         <div className="absolute mx-auto h-px w-40 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
       </div>
       <div className="py-10 md:py-20">
-        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-bold text-white md:text-4xl lg:text-7xl">
-          {"Launch your website in hours, not days"
+        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-bold text-white md:text-4xl lg:text-7xl tracking-wide">
+          {"AI Code Editor for Devs, by Devs"
             .split(" ")
             .map((word, index) => (
               <motion.span
@@ -52,9 +65,8 @@ export default function HeroSectionOne() {
           }}
           className="relative z-10 mx-auto max-w-xl py-4 text-center text-lg font-normal text-gray-300"
         >
-          With AI, you can launch your website in hours, not days. Try our best
-          in class, state of the art, cutting edge AI tools to get your website
-          up.
+          An intelligent code editor designed to accelerate your practice, correct your bugs,
+          and guide your growth—one line at a time.
         </motion.p>
         <motion.div
           initial={{
@@ -69,8 +81,11 @@ export default function HeroSectionOne() {
           }}
           className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4"
         >
-          <button className="w-60 transform rounded-lg bg-white px-6 py-2 font-medium text-black transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-200">
-            Explore Now
+          <button 
+            onClick={handleExploreClick}
+            className="w-60 transform rounded-lg bg-white px-6 py-2 font-medium text-black transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-200"
+          >
+            {isSignedIn ? 'Go to Code Editor' : 'Explore Now'}
           </button>
           <button className="w-60 transform rounded-lg border border-gray-600 bg-transparent px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800">
             Contact Support
@@ -108,12 +123,18 @@ export default function HeroSectionOne() {
 
 const Navbar = () => {
   const { isSignedIn, user } = useUser();
+  const navigate = useNavigate();
 
   return (
     <nav className="flex w-full items-center justify-between border-t border-b border-gray-700 px-4 py-4 bg-black/20 backdrop-blur-sm">
-      <div className="flex items-center gap-2">
-        <div className="size-7 rounded-full bg-gradient-to-br from-violet-500 to-pink-500" />
-        <h1 className="text-base font-bold md:text-2xl text-white">Code Guardian</h1>
+      <div className="flex items-center gap-3">
+        <Logo size="md" />
+        <h1 
+          onClick={() => navigate('/')}
+          className="text-base font-bold md:text-2xl text-white cursor-pointer hover:text-gray-300 transition-colors"
+        >
+          CodeSprint
+        </h1>
       </div>
       <div className="flex items-center space-x-4">
         {isSignedIn ? (

@@ -1,4 +1,3 @@
-
 export interface Example {
   input: string;
   output: string;
@@ -14,4 +13,8 @@ export interface Problem {
   description: string;
   examples: Example[];
   constraints: string[];
+  starterCodeJS?: string;
+  starterCodePython?: string;
+  starterCodeJava?: string;
+  starterCodeCpp?: string;
 }
