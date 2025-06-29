@@ -43,6 +43,7 @@ const CodeEditor: React.FC = () => {
   const [codeHistory, setCodeHistory] = useState<string[]>([])
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1)
   const [appTheme, setAppTheme] = useState<'light' | 'dark'>('light')
+  const [testCases, setTestCases] = useState([]);
   const timerRef = useRef(null)
 
   // Check if user is admin
@@ -126,23 +127,11 @@ const CodeEditor: React.FC = () => {
       }
 
       if (data && data.length > 0) {
-        const formattedQuestions: Problem[] = data.map(q => ({
-          id: q.id,
-          title: q.title,
-          difficulty: q.difficulty,
-          timeLimit: q.time_limit,
-          memoryLimit: q.memory_limit,
-          description: q.description,
-          examples: q.examples,
-          constraints: q.constraints,
-          starterCodeJS: q.starter_code_js,
-          starterCodePython: q.starter_code_python,
-          starterCodeJava: q.starter_code_java,
-          starterCodeCpp: q.starter_code_cpp,
-        }))
-        setQuestions(formattedQuestions)
-        console.log(`Loaded ${formattedQuestions.length} questions from database`)
+        setQuestions(data)
+        setSelectedProblem(data[0])
+        console.log(`Loaded ${data.length} questions from database`)
         console.log('Fetched questions:', data)
+        console.log('Test cases for first question:', data[0].test_cases);
       }
     } catch (error) {
       console.error('Error fetching questions:', error)
@@ -251,17 +240,17 @@ const CodeEditor: React.FC = () => {
       });
 
       (window as any).monaco.editor.defineTheme('github-light', {
-        base: 'vs',
-        inherit: true,
-        rules: [],
-        colors: {
+      base: 'vs',
+      inherit: true,
+      rules: [],
+      colors: {
           'editor.background': '#ffffff',
           'editor.foreground': '#24292e',
           'editor.lineHighlightBackground': '#f6f8fa',
           'editor.selectionBackground': '#c8e1ff',
           'editor.inactiveSelectionBackground': '#f1f8ff',
-        },
-      });
+      },
+    });
     }
   }, []);
 
@@ -278,40 +267,38 @@ const CodeEditor: React.FC = () => {
     console.log('Solution auto-submitted and timer stopped')
   }
 
-  const handleRunCode = async () => {
-    setIsRunning(true)
-    try {
-      const result = await executeCode(code, language)
-      setTestResults(result)
-      toast({
-        title: "Code Executed",
-        description: "Your code has been executed successfully.",
-      })
-    } catch (error) {
-      console.error('Error running code:', error)
-      setTestResults({
-        status: 'error',
-        executionTime: '0ms',
-        memoryUsed: '0MB',
-        testCasesPassed: '0/3',
-        failedTestCases: [
-          { input: "nums = [2,7,11,15], target = 9", expected: "[0,1]", actual: "Error" }
-        ],
-        errorMessage: 'Failed to execute code. Please check your implementation.',
-        suggestions: 'Make sure your code is syntactically correct.',
-        timeComplexity: 'Unknown',
-        spaceComplexity: 'Unknown',
-        correctness: 0
-      })
-      toast({
-        title: "Execution Error",
-        description: "Failed to execute code. Please check your implementation.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsRunning(false)
+  // Fetch test cases for the selected problem
+  const fetchTestCases = async (problemId: string) => {
+    const { data, error } = await supabase
+      .from('questions')
+      .select('*')
+      .eq('id', problemId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching test cases:', error);
+    } else {
+      // data.test_cases is your array of test cases
+      console.log('Fetched test cases:', data.test_cases);
+      setTestCases(data.test_cases);
     }
-  }
+  };
+
+  useEffect(() => {
+    if (selectedProblem?.id) {
+      fetchTestCases(selectedProblem.id);
+    }
+  }, [selectedProblem]);
+
+  // Update handleRunCode to use testCases
+  const handleRunCode = async () => {
+    if (!code.trim()) return;
+    setIsRunning(true);
+    const result = await executeCode(code, language, testCases);
+    setTestResults(result);
+    setIsRunning(false);
+    console.log('Test results:', result);
+  };
 
   const handleReset = () => {
     const template = getCodeTemplate(language)
@@ -410,29 +397,29 @@ const CodeEditor: React.FC = () => {
 
   return (
     <div className="h-screen w-full flex flex-col bg-background">
-      <Header
-        timeLeft={timeLeft}
-        lastSaved={lastSaved}
-        hasSubmitted={hasSubmitted}
-        onAddQuestion={isAdmin ? () => setShowAddQuestion(true) : undefined}
+        <Header
+          timeLeft={timeLeft}
+          lastSaved={lastSaved}
+          hasSubmitted={hasSubmitted}
+          onAddQuestion={isAdmin ? () => setShowAddQuestion(true) : undefined}
         appTheme={appTheme}
         compact={true}
-      />
+        />
 
-      {showAddQuestion && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <AdminQuestionForm
-            onQuestionAdded={handleQuestionAdded}
-            onClose={() => setShowAddQuestion(false)}
-          />
-        </div>
-      )}
+        {showAddQuestion && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <AdminQuestionForm
+              onQuestionAdded={handleQuestionAdded}
+              onClose={() => setShowAddQuestion(false)}
+            />
+          </div>
+        )}
 
       <div className="flex-1 px-4 pb-4">
-        <ResizablePanelGroup direction="horizontal" className="h-full">
+          <ResizablePanelGroup direction="horizontal" className="h-full">
           {showProblemPanel && (
             <>
-              <ResizablePanel defaultSize={40} minSize={30}>
+            <ResizablePanel defaultSize={40} minSize={30}>
                 <div className="h-full bg-white border-gray-200 rounded-lg shadow-sm border">
                   <div className="p-4 border-b bg-gray-50 border-gray-200 rounded-t-lg">
                     <div className="flex items-center justify-between mb-4">
@@ -452,18 +439,18 @@ const CodeEditor: React.FC = () => {
                       </div>
                     </div>
                     
-                    <Select 
-                      value={selectedProblem?.id || ""} 
-                      onValueChange={(value) => {
-                        const problem = questions.find(p => p.id === value);
-                        if (problem) setSelectedProblem(problem);
-                      }}
-                    >
+                  <Select 
+                    value={selectedProblem?.id || ""} 
+                    onValueChange={(value) => {
+                      const problem = questions.find(p => p.id === value);
+                      if (problem) setSelectedProblem(problem);
+                    }}
+                  >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a problem" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {questions.map((problem) => (
+                      <SelectValue placeholder="Select a problem" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {questions.map((problem) => (
                           <SelectItem key={problem.id} value={problem.id} className="py-3">
                             <div className="flex items-center justify-between w-full">
                               <span className="font-medium">{problem.title}</span>
@@ -471,23 +458,23 @@ const CodeEditor: React.FC = () => {
                                 {problem.difficulty}
                               </Badge>
                             </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="p-4 overflow-auto h-[calc(100%-100px)]">
-                    <ProblemStatement problem={currentProblem} />
-                  </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </ResizablePanel>
-              <ResizableHandle />
+                  <div className="p-4 overflow-auto h-[calc(100%-100px)]">
+                <ProblemStatement problem={currentProblem} />
+                  </div>
+              </div>
+            </ResizablePanel>
+            <ResizableHandle />
             </>
           )}
-          
+            
           <ResizablePanel defaultSize={showProblemPanel ? 60 : 100} minSize={40}>
             <ResizablePanelGroup direction="vertical" className="h-full">
-              <ResizablePanel defaultSize={70} minSize={50}>
+                <ResizablePanel defaultSize={70} minSize={50}>
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
                   <TabsList className="grid w-full grid-cols-2 h-10">
                     <TabsTrigger value="editor" className="text-sm">Editor</TabsTrigger>
@@ -540,18 +527,18 @@ const CodeEditor: React.FC = () => {
                         
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                           <div className="flex items-center space-x-4">
-                            <Select value={language} onValueChange={setLanguage}>
-                              <SelectTrigger className="w-40">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="javascript">JavaScript</SelectItem>
-                                <SelectItem value="python">Python</SelectItem>
-                                <SelectItem value="java">Java</SelectItem>
-                                <SelectItem value="cpp">C++</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            
+                      <Select value={language} onValueChange={setLanguage}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="javascript">JavaScript</SelectItem>
+                          <SelectItem value="python">Python</SelectItem>
+                          <SelectItem value="java">Java</SelectItem>
+                          <SelectItem value="cpp">C++</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
                             <div className="hidden md:flex items-center space-x-1 text-sm">
                               <span>Lines:</span>
                               <span className="font-mono">{code.split('\n').length}</span>
@@ -574,26 +561,26 @@ const CodeEditor: React.FC = () => {
                             <Separator orientation="vertical" className="h-6" />
                             
                             <Button onClick={handleReset} variant="outline" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''}`}>
-                              <RotateCcw className="w-4 h-4 mr-1" />
-                              Reset
-                            </Button>
+                          <RotateCcw className="w-4 h-4 mr-1" />
+                          Reset
+                        </Button>
                             <Button onClick={handleSave} variant="outline" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''}`}>
-                              <Save className="w-4 h-4 mr-1" />
-                              Save
-                            </Button>
+                          <Save className="w-4 h-4 mr-1" />
+                          Save
+                        </Button>
                             
                             <Button onClick={handleRunCode} disabled={isRunning} size="sm" className="h-9 px-3 bg-green-600 hover:bg-green-700">
-                              <Play className="w-4 h-4 mr-1" />
-                              {isRunning ? 'Running...' : 'Run'}
-                            </Button>
+                          <Play className="w-4 h-4 mr-1" />
+                          {isRunning ? 'Running...' : 'Run'}
+                        </Button>
                             <Button onClick={handleSubmit} disabled={hasSubmitted} size="sm" className="h-9 px-3 bg-blue-600 hover:bg-blue-700">
                               <Zap className="w-4 h-4 mr-1" />
-                              Submit
-                            </Button>
+                          Submit
+                        </Button>
                           </div>
-                        </div>
                       </div>
-                      
+                    </div>
+                    
                       <div className="h-[calc(100%-120px)]">
                         <Editor
                           height="100%"
@@ -745,16 +732,16 @@ const CodeEditor: React.FC = () => {
                               <TestResults result={testResults} />
                             </div>
                           )}
-                        </div>
                       </div>
                     </div>
+                  </div>
                   </TabsContent>
                 </Tabs>
-              </ResizablePanel>
-              
-              <ResizableHandle />
-              
-              <ResizablePanel defaultSize={30} minSize={20}>
+                </ResizablePanel>
+                
+                <ResizableHandle />
+                
+                <ResizablePanel defaultSize={30} minSize={20}>
                 <div className={`h-full ${appTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg shadow-sm border transition-colors duration-200`}>
                   <div className={`p-4 border-b ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-t-lg transition-colors duration-200`}>
                     <div className="flex items-center justify-between">
@@ -784,11 +771,11 @@ const CodeEditor: React.FC = () => {
                       </div>
                     )}
                   </div>
-                </div>
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </ResizablePanel>
+          </ResizablePanelGroup>
       </div>
     </div>
   )
