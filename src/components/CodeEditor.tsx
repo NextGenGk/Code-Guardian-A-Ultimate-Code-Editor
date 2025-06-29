@@ -249,6 +249,19 @@ const CodeEditor: React.FC = () => {
           'editor.inactiveSelectionBackground': '#21262d',
         },
       });
+
+      (window as any).monaco.editor.defineTheme('github-light', {
+        base: 'vs',
+        inherit: true,
+        rules: [],
+        colors: {
+          'editor.background': '#ffffff',
+          'editor.foreground': '#24292e',
+          'editor.lineHighlightBackground': '#f6f8fa',
+          'editor.selectionBackground': '#c8e1ff',
+          'editor.inactiveSelectionBackground': '#f1f8ff',
+        },
+      });
     }
   }, []);
 
@@ -499,9 +512,11 @@ const CodeEditor: React.FC = () => {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="vs-dark">Dark</SelectItem>
-                              <SelectItem value="vs-light">Light</SelectItem>
+                              <SelectItem value="vs-dark">VS Dark</SelectItem>
+                              <SelectItem value="vs-light">VS Light</SelectItem>
                               <SelectItem value="github-dark">GitHub Dark</SelectItem>
+                              <SelectItem value="github-light">GitHub Light</SelectItem>
+                              <SelectItem value="hc-black">High Contrast</SelectItem>
                             </SelectContent>
                           </Select>
                           
