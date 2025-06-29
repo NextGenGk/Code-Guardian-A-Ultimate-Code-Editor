@@ -431,14 +431,6 @@ const CodeEditor: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={toggleTheme}
-                            className={appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}
-                          >
-                            {appTheme === 'dark' ? '☀️' : '🌙'}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
                             onClick={() => setShowProblemPanel(false)}
                             className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                           >
