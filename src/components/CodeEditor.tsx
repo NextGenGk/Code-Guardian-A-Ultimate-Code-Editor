@@ -409,258 +409,386 @@ const CodeEditor: React.FC = () => {
   }
 
   return (
-    <div className={`${isFullscreen ? 'fixed inset-0 z-50' : 'h-screen'} ${appTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-200`}>
-      <div className="h-full flex flex-col space-y-4">
-        <Header
-          timeLeft={timeLeft}
-          lastSaved={lastSaved}
-          hasSubmitted={hasSubmitted}
-          onAddQuestion={isAdmin ? () => setShowAddQuestion(true) : undefined}
-          appTheme={appTheme}
-        />
+    <div className="h-screen w-full flex flex-col bg-background">
+      <Header
+        timeLeft={timeLeft}
+        lastSaved={lastSaved}
+        hasSubmitted={hasSubmitted}
+        onAddQuestion={isAdmin ? () => setShowAddQuestion(true) : undefined}
+        appTheme={appTheme}
+        compact={true}
+      />
 
-        {showAddQuestion && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <AdminQuestionForm
-              onQuestionAdded={handleQuestionAdded}
-              onClose={() => setShowAddQuestion(false)}
-            />
-          </div>
-        )}
+      {showAddQuestion && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <AdminQuestionForm
+            onQuestionAdded={handleQuestionAdded}
+            onClose={() => setShowAddQuestion(false)}
+          />
+        </div>
+      )}
 
-        <div className="flex-1 px-4 pb-4">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            {showProblemPanel && (
-              <>
-                <ResizablePanel defaultSize={40} minSize={30}>
-                  <div className="h-full bg-white border-gray-200 rounded-lg shadow-sm border">
-                    <div className="p-4 border-b bg-gray-50 border-gray-200 rounded-t-lg">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-2">
-                          <BookOpen className="w-5 h-5 text-blue-600" />
-                          <h2 className="text-lg font-semibold text-gray-900">Problem Statement</h2>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setShowProblemPanel(false)}
-                            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                          >
-                            <Minimize2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+      <div className="flex-1 px-4 pb-4">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {showProblemPanel && (
+            <>
+              <ResizablePanel defaultSize={40} minSize={30}>
+                <div className="h-full bg-white border-gray-200 rounded-lg shadow-sm border">
+                  <div className="p-4 border-b bg-gray-50 border-gray-200 rounded-t-lg">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <BookOpen className="w-5 h-5 text-blue-600" />
+                        <h2 className="text-lg font-semibold text-gray-900">Problem Statement</h2>
                       </div>
-                      
-                      <Select 
-                        value={selectedProblem?.id || ""} 
-                        onValueChange={(value) => {
-                          const problem = questions.find(p => p.id === value);
-                          if (problem) setSelectedProblem(problem);
-                        }}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a problem" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {questions.map((problem) => (
-                            <SelectItem key={problem.id} value={problem.id} className="py-3">
-                              <div className="flex items-center justify-between w-full">
-                                <span className="font-medium">{problem.title}</span>
-                                <Badge variant={problem.difficulty === 'Easy' ? 'default' : problem.difficulty === 'Medium' ? 'secondary' : 'destructive'} className="ml-2 px-3 py-1">
-                                  {problem.difficulty}
-                                </Badge>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="p-4 overflow-auto h-[calc(100%-100px)]">
-                      <ProblemStatement problem={currentProblem} />
-                    </div>
-                  </div>
-                </ResizablePanel>
-                <ResizableHandle />
-              </>
-            )}
-            
-            <ResizablePanel defaultSize={showProblemPanel ? 60 : 100} minSize={40}>
-              <ResizablePanelGroup direction="vertical" className="h-full">
-                <ResizablePanel defaultSize={70} minSize={50}>
-                  <div className={`h-full ${appTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg shadow-sm border transition-colors duration-200`}>
-                    <div className={`p-4 border-b ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-t-lg transition-colors duration-200`}>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-2">
-                          <Target className="w-5 h-5 text-green-600" />
-                          <h2 className={`text-lg font-semibold ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Code Editor</h2>
-                          {!showProblemPanel && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setShowProblemPanel(true)}
-                              className={appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}
-                            >
-                              <Maximize2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <Select value={editorTheme} onValueChange={setEditorTheme}>
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="vs-dark">VS Dark</SelectItem>
-                              <SelectItem value="vs-light">VS Light</SelectItem>
-                              <SelectItem value="github-dark">GitHub Dark</SelectItem>
-                              <SelectItem value="github-light">GitHub Light</SelectItem>
-                              <SelectItem value="hc-black">High Contrast</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsFullscreen(!isFullscreen)}
-                            className={appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}
-                          >
-                            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        <div className="flex items-center space-x-4">
-                          <Select value={language} onValueChange={setLanguage}>
-                            <SelectTrigger className="w-40">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="javascript">JavaScript</SelectItem>
-                              <SelectItem value="python">Python</SelectItem>
-                              <SelectItem value="java">Java</SelectItem>
-                              <SelectItem value="cpp">C++</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          
-                          <div className="hidden md:flex items-center space-x-1 text-sm">
-                            <span>Lines:</span>
-                            <span className="font-mono">{code.split('\n').length}</span>
-                          </div>
-                          
-                          <div className="hidden md:flex items-center space-x-1 text-sm">
-                            <span>Chars:</span>
-                            <span className="font-mono">{code.length}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <Button onClick={handleDownload} variant="ghost" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}>
-                            <Download className="w-4 h-4" />
-                          </Button>
-                          <Button onClick={handleShare} variant="ghost" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}>
-                            <Share2 className="w-4 h-4" />
-                          </Button>
-                          
-                          <Separator orientation="vertical" className="h-6" />
-                          
-                          <Button onClick={handleReset} variant="outline" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''}`}>
-                            <RotateCcw className="w-4 h-4 mr-1" />
-                            Reset
-                          </Button>
-                          <Button onClick={handleSave} variant="outline" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''}`}>
-                            <Save className="w-4 h-4 mr-1" />
-                            Save
-                          </Button>
-                          
-                          <Button onClick={handleRunCode} disabled={isRunning} size="sm" className="h-9 px-3 bg-green-600 hover:bg-green-700">
-                            <Play className="w-4 h-4 mr-1" />
-                            {isRunning ? 'Running...' : 'Run'}
-                          </Button>
-                          <Button onClick={handleSubmit} disabled={hasSubmitted} size="sm" className="h-9 px-3 bg-blue-600 hover:bg-blue-700">
-                            <Zap className="w-4 h-4 mr-1" />
-                            Submit
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="h-[calc(100%-120px)]">
-                      <Editor
-                        height="100%"
-                        language={language}
-                        value={code}
-                        onChange={value => setCode(value || '')}
-                        theme={editorTheme}
-                        options={{
-                          minimap: { enabled: true },
-                          fontSize: 14,
-                          lineNumbers: 'on',
-                          roundedSelection: false,
-                          scrollBeyondLastLine: false,
-                          automaticLayout: true,
-                          wordWrap: 'on',
-                          folding: true,
-                          lineDecorationsWidth: 10,
-                          lineNumbersMinChars: 3,
-                          glyphMargin: true,
-                          renderLineHighlight: 'all',
-                          selectOnLineNumbers: true,
-                          cursorBlinking: 'smooth',
-                          cursorSmoothCaretAnimation: 'on',
-                          smoothScrolling: true,
-                          mouseWheelZoom: true,
-                          bracketPairColorization: { enabled: true },
-                          guides: {
-                            bracketPairs: true,
-                            indentation: true,
-                          },
-                        }}
-                      />
-                    </div>
-                  </div>
-                </ResizablePanel>
-                
-                <ResizableHandle />
-                
-                <ResizablePanel defaultSize={30} minSize={20}>
-                  <div className={`h-full ${appTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg shadow-sm border transition-colors duration-200`}>
-                    <div className={`p-4 border-b ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-t-lg transition-colors duration-200`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Brain className="w-5 h-5 text-purple-600" />
-                          <h2 className={`text-lg font-semibold ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>AI Analysis</h2>
-                        </div>
+                      <div className="flex items-center space-x-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setShowTestPanel(false)}
-                          className={appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}
+                          onClick={() => setShowProblemPanel(false)}
+                          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                         >
                           <Minimize2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
-                    <div className="p-4 overflow-auto h-[calc(100%-80px)]">
-                      {testResults ? (
-                        <TestResults result={testResults} />
-                      ) : (
-                        <div className="flex items-center justify-center h-full text-gray-500">
-                          <div className="text-center">
-                            <Brain className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                            <p>Run your code to see AI analysis results</p>
+                    
+                    <Select 
+                      value={selectedProblem?.id || ""} 
+                      onValueChange={(value) => {
+                        const problem = questions.find(p => p.id === value);
+                        if (problem) setSelectedProblem(problem);
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a problem" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {questions.map((problem) => (
+                          <SelectItem key={problem.id} value={problem.id} className="py-3">
+                            <div className="flex items-center justify-between w-full">
+                              <span className="font-medium">{problem.title}</span>
+                              <Badge variant={problem.difficulty === 'Easy' ? 'default' : problem.difficulty === 'Medium' ? 'secondary' : 'destructive'} className="ml-2 px-3 py-1">
+                                {problem.difficulty}
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="p-4 overflow-auto h-[calc(100%-100px)]">
+                    <ProblemStatement problem={currentProblem} />
+                  </div>
+                </div>
+              </ResizablePanel>
+              <ResizableHandle />
+            </>
+          )}
+          
+          <ResizablePanel defaultSize={showProblemPanel ? 60 : 100} minSize={40}>
+            <ResizablePanelGroup direction="vertical" className="h-full">
+              <ResizablePanel defaultSize={70} minSize={50}>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+                  <TabsList className="grid w-full grid-cols-2 h-10">
+                    <TabsTrigger value="editor" className="text-sm">Editor</TabsTrigger>
+                    <TabsTrigger value="submission" className="text-sm">Submission</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="editor" className="flex-1 mt-0 p-0">
+                    <div className={`h-full ${appTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg shadow-sm border transition-colors duration-200`}>
+                      <div className={`p-4 border-b ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-t-lg transition-colors duration-200`}>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-2">
+                            <Target className="w-5 h-5 text-green-600" />
+                            <h2 className={`text-lg font-semibold ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Code Editor</h2>
+                            {!showProblemPanel && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowProblemPanel(true)}
+                                className={appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}
+                              >
+                                <Maximize2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Select value={editorTheme} onValueChange={setEditorTheme}>
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="vs-dark">VS Dark</SelectItem>
+                                <SelectItem value="vs-light">VS Light</SelectItem>
+                                <SelectItem value="github-dark">GitHub Dark</SelectItem>
+                                <SelectItem value="github-light">GitHub Light</SelectItem>
+                                <SelectItem value="hc-black">High Contrast</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setIsFullscreen(!isFullscreen)}
+                              className={appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}
+                            >
+                              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                            </Button>
                           </div>
                         </div>
-                      )}
+                        
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                          <div className="flex items-center space-x-4">
+                            <Select value={language} onValueChange={setLanguage}>
+                              <SelectTrigger className="w-40">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="javascript">JavaScript</SelectItem>
+                                <SelectItem value="python">Python</SelectItem>
+                                <SelectItem value="java">Java</SelectItem>
+                                <SelectItem value="cpp">C++</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            
+                            <div className="hidden md:flex items-center space-x-1 text-sm">
+                              <span>Lines:</span>
+                              <span className="font-mono">{code.split('\n').length}</span>
+                            </div>
+                            
+                            <div className="hidden md:flex items-center space-x-1 text-sm">
+                              <span>Chars:</span>
+                              <span className="font-mono">{code.length}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Button onClick={handleDownload} variant="ghost" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}>
+                              <Download className="w-4 h-4" />
+                            </Button>
+                            <Button onClick={handleShare} variant="ghost" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}>
+                              <Share2 className="w-4 h-4" />
+                            </Button>
+                            
+                            <Separator orientation="vertical" className="h-6" />
+                            
+                            <Button onClick={handleReset} variant="outline" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''}`}>
+                              <RotateCcw className="w-4 h-4 mr-1" />
+                              Reset
+                            </Button>
+                            <Button onClick={handleSave} variant="outline" size="sm" className={`h-9 px-3 ${appTheme === 'dark' ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''}`}>
+                              <Save className="w-4 h-4 mr-1" />
+                              Save
+                            </Button>
+                            
+                            <Button onClick={handleRunCode} disabled={isRunning} size="sm" className="h-9 px-3 bg-green-600 hover:bg-green-700">
+                              <Play className="w-4 h-4 mr-1" />
+                              {isRunning ? 'Running...' : 'Run'}
+                            </Button>
+                            <Button onClick={handleSubmit} disabled={hasSubmitted} size="sm" className="h-9 px-3 bg-blue-600 hover:bg-blue-700">
+                              <Zap className="w-4 h-4 mr-1" />
+                              Submit
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="h-[calc(100%-120px)]">
+                        <Editor
+                          height="100%"
+                          language={language}
+                          value={code}
+                          onChange={value => setCode(value || '')}
+                          theme={editorTheme}
+                          options={{
+                            minimap: { enabled: true },
+                            fontSize: 14,
+                            lineNumbers: 'on',
+                            roundedSelection: false,
+                            scrollBeyondLastLine: false,
+                            automaticLayout: true,
+                            wordWrap: 'on',
+                            folding: true,
+                            lineDecorationsWidth: 10,
+                            lineNumbersMinChars: 3,
+                            glyphMargin: true,
+                            renderLineHighlight: 'all',
+                            selectOnLineNumbers: true,
+                            cursorBlinking: 'solid',
+                            cursorSmoothCaretAnimation: 'on',
+                            smoothScrolling: true,
+                            mouseWheelZoom: true,
+                            bracketPairColorization: { enabled: true },
+                            guides: {
+                              bracketPairs: true,
+                              indentation: true,
+                            },
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="submission" className="flex-1 mt-0 p-0">
+                    <div className={`h-full ${appTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg shadow-sm border transition-colors duration-200`}>
+                      <div className={`p-4 border-b ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-t-lg transition-colors duration-200`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <FileText className="w-5 h-5 text-blue-600" />
+                            <h2 className={`text-lg font-semibold ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Submission Details</h2>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant={hasSubmitted ? 'default' : 'secondary'} className="px-3 py-1">
+                              {hasSubmitted ? 'Submitted' : 'Not Submitted'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-4 overflow-auto h-[calc(100%-80px)]">
+                        <div className="space-y-6">
+                          {/* Problem Information */}
+                          <div className={`p-4 rounded-lg border ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                            <h3 className={`text-lg font-semibold mb-3 ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Problem Information</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <p className={`text-sm font-medium ${appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Problem Title</p>
+                                <p className={`text-base ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{currentProblem?.title || 'No problem selected'}</p>
+                              </div>
+                              <div>
+                                <p className={`text-sm font-medium ${appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Difficulty</p>
+                                <Badge variant={currentProblem?.difficulty === 'Easy' ? 'default' : currentProblem?.difficulty === 'Medium' ? 'secondary' : 'destructive'} className="mt-1">
+                                  {currentProblem?.difficulty || 'Unknown'}
+                                </Badge>
+                              </div>
+                              <div>
+                                <p className={`text-sm font-medium ${appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Time Limit</p>
+                                <p className={`text-base ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{currentProblem?.timeLimit || '30 minutes'}</p>
+                              </div>
+                              <div>
+                                <p className={`text-sm font-medium ${appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Memory Limit</p>
+                                <p className={`text-base ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{currentProblem?.memoryLimit || '128 MB'}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Submission Status */}
+                          <div className={`p-4 rounded-lg border ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                            <h3 className={`text-lg font-semibold mb-3 ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Submission Status</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div>
+                                <p className={`text-sm font-medium ${appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Status</p>
+                                <Badge variant={hasSubmitted ? 'default' : 'secondary'} className="mt-1">
+                                  {hasSubmitted ? 'Submitted' : 'Draft'}
+                                </Badge>
+                              </div>
+                              <div>
+                                <p className={`text-sm font-medium ${appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Language</p>
+                                <p className={`text-base ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{language.charAt(0).toUpperCase() + language.slice(1)}</p>
+                              </div>
+                              <div>
+                                <p className={`text-sm font-medium ${appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Last Saved</p>
+                                <p className={`text-base ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{lastSaved?.toString() || 'Never'}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Code Preview */}
+                          <div className={`p-4 rounded-lg border ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className={`text-lg font-semibold ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Code Preview</h3>
+                              <div className="flex items-center space-x-2 text-sm">
+                                <span className={appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
+                                  {code.split('\n').length} lines
+                                </span>
+                                <span className={appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
+                                  {code.length} characters
+                                </span>
+                              </div>
+                            </div>
+                            <div className={`rounded-lg border ${appTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+                              <Editor
+                                height="300px"
+                                language={language}
+                                value={code}
+                                theme={editorTheme}
+                                options={{
+                                  readOnly: true,
+                                  minimap: { enabled: false },
+                                  fontSize: 12,
+                                  lineNumbers: 'on',
+                                  wordWrap: 'on',
+                                  folding: false,
+                                  glyphMargin: false,
+                                  renderLineHighlight: 'none',
+                                  cursorBlinking: 'solid',
+                                  scrollBeyondLastLine: false,
+                                  overviewRulerBorder: false,
+                                  overviewRulerLanes: 0,
+                                  hideCursorInOverviewRuler: true,
+                                  scrollbar: {
+                                    vertical: 'visible',
+                                    horizontal: 'visible',
+                                    useShadows: false,
+                                    verticalScrollbarSize: 8,
+                                    horizontalScrollbarSize: 8,
+                                  },
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Test Results */}
+                          {testResults && (
+                            <div className={`p-4 rounded-lg border ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                              <h3 className={`text-lg font-semibold mb-3 ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Test Results</h3>
+                              <TestResults result={testResults} />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </ResizablePanel>
+              
+              <ResizableHandle />
+              
+              <ResizablePanel defaultSize={30} minSize={20}>
+                <div className={`h-full ${appTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg shadow-sm border transition-colors duration-200`}>
+                  <div className={`p-4 border-b ${appTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-t-lg transition-colors duration-200`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Brain className="w-5 h-5 text-purple-600" />
+                        <h2 className={`text-lg font-semibold ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>AI Analysis</h2>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowTestPanel(false)}
+                        className={appTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}
+                      >
+                        <Minimize2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
+                  <div className="p-4 overflow-auto h-[calc(100%-80px)]">
+                    {testResults ? (
+                      <TestResults result={testResults} />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-500">
+                        <div className="text-center">
+                          <Brain className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                          <p>Run your code to see AI analysis results</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   )
