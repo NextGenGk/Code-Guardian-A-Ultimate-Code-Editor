@@ -100,15 +100,15 @@ const TestResults: React.FC<TestResultsProps> = ({ result }) => {
                 <div key={idx} className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs">
                   <div>
                     <span className="font-semibold">Input:</span>{' '}
-                    <span className="font-mono">{tc.input}</span>
+                    <span className="font-mono">{typeof tc.input === 'object' ? JSON.stringify(tc.input) : tc.input}</span>
                   </div>
                   <div>
                     <span className="font-semibold">Expected:</span>{' '}
-                    <span className="font-mono">{tc.expected}</span>
+                    <span className="font-mono">{typeof tc.expected === 'object' ? JSON.stringify(tc.expected) : tc.expected}</span>
                   </div>
                   <div>
                     <span className="font-semibold">Actual:</span>{' '}
-                    <span className="font-mono text-red-600">{tc.actual}</span>
+                    <span className="font-mono text-red-600">{typeof tc.actual === 'object' ? JSON.stringify(tc.actual) : tc.actual}</span>
                   </div>
                 </div>
               ))}

@@ -11,7 +11,6 @@ import ProblemStatement from './ProblemStatement'
 import TestResults from './TestResults'
 import Header from './layout/Header'
 import AdminQuestionForm from './admin/AdminQuestionForm'
-import { Problem } from '@/types/Problem'
 import { getCodeTemplate } from '@/utils/codeTemplates'
 import { executeCode } from '@/utils/codeExecution'
 import { toast } from '@/hooks/use-toast'
@@ -21,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
+import { Problem } from '@/types/Problem'
 
 const CodeEditor: React.FC = () => {
   const { user } = useUser()
@@ -111,16 +111,14 @@ const CodeEditor: React.FC = () => {
       setIsLoadingQuestions(true)
       const { data, error } = await supabase
         .from('questions')
-        .select('*')
+        .select('id, title, difficulty, time_limit, memory_limit, description, examples, constraints, created_by, created_at, updated_at, starter_code_js, starter_code_python, starter_code_java, starter_code_cpp, test_cases')
         .order('created_at', { ascending: true })
-
-      console.log('Fetched questions:', data, error)
 
       if (error) {
         console.error('Error fetching questions:', error)
         toast({
           title: "Error",
-          description: "Failed to load questions from database. Using default question.",
+          description: "Failed to load questions from database.",
           variant: "destructive",
         })
         return
@@ -130,14 +128,12 @@ const CodeEditor: React.FC = () => {
         setQuestions(data)
         setSelectedProblem(data[0])
         console.log(`Loaded ${data.length} questions from database`)
-        console.log('Fetched questions:', data)
-        console.log('Test cases for first question:', data[0].test_cases);
       }
     } catch (error) {
       console.error('Error fetching questions:', error)
       toast({
         title: "Error",
-        description: "Failed to connect to database. Using default question.",
+        description: "Failed to connect to database.",
         variant: "destructive",
       })
     } finally {
@@ -166,34 +162,27 @@ const CodeEditor: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    // Set code when language or selectedProblem changes
     if (selectedProblem) {
       let starter = '';
       switch (language) {
         case 'javascript':
-          starter = selectedProblem.starterCodeJS || getCodeTemplate('javascript');
+          starter = selectedProblem.starter_code_js || getCodeTemplate('javascript');
           break;
         case 'python':
-          starter = selectedProblem.starterCodePython || getCodeTemplate('python');
+          starter = selectedProblem.starter_code_python || getCodeTemplate('python');
           break;
         case 'java':
-          starter = selectedProblem.starterCodeJava || getCodeTemplate('java');
+          starter = selectedProblem.starter_code_java || getCodeTemplate('java');
           break;
         case 'cpp':
-          starter = selectedProblem.starterCodeCpp || getCodeTemplate('cpp');
+          starter = selectedProblem.starter_code_cpp || getCodeTemplate('cpp');
           break;
         default:
           starter = getCodeTemplate(language);
       }
       setCode(starter);
-      // Reset history when problem changes
-      setCodeHistory([starter])
-      setCurrentHistoryIndex(0)
-    } else {
-      const template = getCodeTemplate(language);
-      setCode(template);
-      setCodeHistory([template])
-      setCurrentHistoryIndex(0)
+      setCodeHistory([starter]);
+      setCurrentHistoryIndex(0);
     }
   }, [language, selectedProblem]);
 
@@ -320,8 +309,8 @@ const CodeEditor: React.FC = () => {
         .insert({
           title: newQuestion.title,
           difficulty: newQuestion.difficulty,
-          time_limit: newQuestion.timeLimit,
-          memory_limit: newQuestion.memoryLimit,
+          time_limit: newQuestion.time_limit,
+          memory_limit: newQuestion.memory_limit,
           description: newQuestion.description,
           examples: newQuestion.examples,
           constraints: newQuestion.constraints,
@@ -650,11 +639,11 @@ const CodeEditor: React.FC = () => {
                               </div>
                               <div>
                                 <p className={`text-sm font-medium ${appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Time Limit</p>
-                                <p className={`text-base ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{currentProblem?.timeLimit || '30 minutes'}</p>
+                                <p className={`text-base ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{currentProblem?.time_limit || '30 minutes'}</p>
                               </div>
                               <div>
                                 <p className={`text-sm font-medium ${appTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Memory Limit</p>
-                                <p className={`text-base ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{currentProblem?.memoryLimit || '128 MB'}</p>
+                                <p className={`text-base ${appTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{currentProblem?.memory_limit || '128 MB'}</p>
                               </div>
                             </div>
                           </div>

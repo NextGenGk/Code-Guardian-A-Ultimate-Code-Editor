@@ -6,43 +6,45 @@ const languageMap = {
   cpp: 54         // C++ (GCC 9.2.0)
 };
 
-const JUDGE0_API_URL = 'https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true';
-const JUDGE0_API_KEY = import.meta.env.VITE_JUDGE0_API_KEY;
+const JUDGE0_API_URL = import.meta.env.VITE_JUDGE0_API_URL;
+
+if (!JUDGE0_API_URL) {
+  throw new Error("JUDGE0_API_URL is not set!");
+}
 
 export const executeCode = async (code, language, testCases) => {
   const language_id = languageMap[language];
   let passed = 0;
   let failedTestCases = [];
 
-  console.log('Judge0 API Key:', JUDGE0_API_KEY);
+  console.log('Judge0 API Key:', JUDGE0_API_URL);
   console.log('Submitting code:', { code, language, language_id, testCases });
 
   for (const tc of testCases) {
     // Submit code to Judge0
-    const submissionRes = await fetch(JUDGE0_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-RapidAPI-Key': JUDGE0_API_KEY,
-        'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
-      },
+    const response = await fetch(`${JUDGE0_API_URL}/submissions?base64_encoded=false&wait=true`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        source_code: code,
         language_id,
+        source_code: code,
         stdin: tc.input
       })
     });
-    const submission = await submissionRes.json();
-    console.log('Judge0 response:', submission);
+    if (!response.ok) {
+      throw new Error(`Judge0 error: ${response.status} ${response.statusText}`);
+    }
+    const result = await response.json();
+    console.log('Judge0 response:', result);
 
     // Handle errors and output
     let output = '';
-    if (submission.stdout) {
-      output = submission.stdout.trim();
-    } else if (submission.stderr) {
-      output = 'Error: ' + submission.stderr.trim();
-    } else if (submission.compile_output) {
-      output = 'Compile Error: ' + submission.compile_output.trim();
+    if (result.stdout) {
+      output = result.stdout.trim();
+    } else if (result.stderr) {
+      output = 'Error: ' + result.stderr.trim();
+    } else if (result.compile_output) {
+      output = 'Compile Error: ' + result.compile_output.trim();
     } else {
       output = 'No output';
     }

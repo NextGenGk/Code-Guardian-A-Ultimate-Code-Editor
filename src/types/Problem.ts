@@ -4,17 +4,22 @@ export interface Example {
   explanation?: string;
 }
 
-export interface Problem {
-  id?: string;
+export type Problem = {
+  id: string;
   title: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  timeLimit: string;
-  memoryLimit: string;
+  difficulty: string;
+  time_limit: string;
+  memory_limit: string;
   description: string;
-  examples: Example[];
+  examples: Array<{ input: string; output: string }>;
   constraints: string[];
-  starterCodeJS?: string;
-  starterCodePython?: string;
-  starterCodeJava?: string;
-  starterCodeCpp?: string;
-}
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  starter_code_js: string;
+  starter_code_python: string;
+  starter_code_java: string;
+  starter_code_cpp: string;
+  test_cases: Array<any>; // You can type this more strictly if you want
+  // ...add any other fields you use
+};
