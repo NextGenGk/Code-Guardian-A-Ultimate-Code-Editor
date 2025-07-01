@@ -283,7 +283,25 @@ const CodeEditor: React.FC = () => {
   const handleRunCode = async () => {
     if (!code.trim()) return;
     setIsRunning(true);
-    const result = await executeCode(code, language, testCases);
+    // Map 'output' to 'expected_output' for each test case
+    const mappedTestCases = testCases.map(tc => ({
+      ...tc,
+      expected_output: tc.output
+    }));
+    // Wrap user code with the template
+    const template = getCodeTemplate(language);
+    // Extract only the function body if the user pasted the full function
+    let userCode = code.trim();
+    if (userCode.startsWith('function')) {
+      // Extract the body between the first { and the last }
+      const bodyMatch = userCode.match(/function\s+\w+\s*\([^)]*\)\s*{([\s\S]*)}/);
+      if (bodyMatch) {
+        userCode = bodyMatch[1].trim();
+      }
+    }
+    // Insert user code into the template (replace '// Your code here' with user code)
+    const finalCode = template.replace('// Your code here', userCode);
+    const result = await executeCode(finalCode, language, mappedTestCases);
     setTestResults(result);
     setIsRunning(false);
     console.log('Test results:', result);

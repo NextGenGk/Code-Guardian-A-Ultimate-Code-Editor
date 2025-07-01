@@ -51,7 +51,9 @@ export const executeCode = async (code, language, testCases) => {
 
     const expected = (tc.expected_output || '').trim();
 
-    if (output === expected) {
+    // Normalize and trim both outputs for robust comparison
+    const normalize = str => (str || '').trim().replace(/\r\n/g, '\n');
+    if (normalize(output) === normalize(expected)) {
       passed++;
     } else {
       failedTestCases.push({
